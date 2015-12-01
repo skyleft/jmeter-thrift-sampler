@@ -28,11 +28,17 @@ public class ThriftSampler extends AbstractSampler implements TestStateListener 
 
     private TProtocol tProtocol;
 
+    private String[] tMethods;
+
+    private String paramMode;
+
     public ThriftSampler() {
         this.setProperty(Consts.THRIFT_URL, "127.0.0.1");
         this.setProperty(Consts.THRIFT_PORT, 9999);
         this.setProperty(Consts.THRIFT_PROTOCOL, TProtocol.TBinaryProtocol.getProtocol());
         this.setProperty(Consts.THRIFT_TIMEOUT, 3000);
+        this.setProperty(Consts.THRIFT_METHOD,"");
+        this.setProperty(Consts.THRIFT_PARAM_MODE,"随机生成");
 
     }
 

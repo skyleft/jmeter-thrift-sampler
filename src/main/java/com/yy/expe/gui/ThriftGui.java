@@ -1,6 +1,6 @@
 package com.yy.expe.gui;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+import com.yy.expe.bean.TProtocol;
 import com.yy.expe.sampler.ThriftSampler;
 import com.yy.expe.utils.Consts;
 import org.apache.jmeter.gui.util.HorizontalPanel;
@@ -12,6 +12,9 @@ import org.apache.log.Logger;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 
 /**
  * Created by zhangzongchao on 2015/11/25.
@@ -22,7 +25,9 @@ public class ThriftGui extends AbstractSamplerGui {
     private static final Logger log = LoggingManager.getLoggerForClass();
 
     private JTextField urlField,portField,timeoutField;
-    private JComboBox protocolCombo;
+    private JComboBox protocolCombo,methodCombo,paramModeCombo;
+    private File thriftFile;
+    private JButton fileChooserButton;
 
     public ThriftGui() {
         init();
@@ -45,6 +50,21 @@ public class ThriftGui extends AbstractSamplerGui {
         return Consts.STATIC_LABEL;
     }
 
+
+    private String getSelectedMethods(){
+        if (methodCombo == null) return "";
+        StringBuilder sb = new StringBuilder("");
+        Object[] selectedObjs = methodCombo.getSelectedObjects();
+        int i = 0;
+        for (Object selectedObj:selectedObjs){
+            sb.append((i++>0?",":"")+selectedObj.toString());
+        }
+        return sb.toString();
+    }
+
+    private void setSelectedMethods(){
+
+    }
     public void modifyTestElement(TestElement testElement) {
         testElement.clear();
         configureTestElement(testElement);
@@ -52,6 +72,9 @@ public class ThriftGui extends AbstractSamplerGui {
         testElement.setProperty(Consts.THRIFT_PORT,portField.getText());
         testElement.setProperty(Consts.THRIFT_TIMEOUT,timeoutField.getText());
         testElement.setProperty(Consts.THRIFT_PROTOCOL,protocolCombo.getSelectedItem().toString());
+        //testElement.setProperty(Consts.THRIFT_FILE,thriftFile.getAbsolutePath());
+        testElement.setProperty(Consts.THRIFT_METHOD,getSelectedMethods());
+        testElement.setProperty(Consts.THRIFT_PARAM_MODE,paramModeCombo.getSelectedItem().toString());
     }
 
     @Override
@@ -60,6 +83,8 @@ public class ThriftGui extends AbstractSamplerGui {
         portField.setText(testElement.getPropertyAsString(Consts.THRIFT_PORT));
         timeoutField.setText(testElement.getPropertyAsString(Consts.THRIFT_TIMEOUT));
         protocolCombo.setSelectedItem(testElement.getPropertyAsString(Consts.THRIFT_PROTOCOL));
+        paramModeCombo.setSelectedItem(testElement.getPropertyAsString(Consts.THRIFT_PARAM_MODE));
+        setSelectedMethods();
         super.configure(testElement);
     }
 
@@ -80,25 +105,87 @@ public class ThriftGui extends AbstractSamplerGui {
      */
     private Component createDataPanel() {
 
-        // ����
+        // 设置
         JPanel settingPanel = new VerticalPanel(5, 0);
 
-        JLabel ipLabel = new JLabel("Thrift�ӿڵ�ַ:");
+        JLabel urlLabel = new JLabel("Thrift接口地址:");
+        urlField = new JTextField();
+        urlLabel.setLabelFor(urlField);
+
+        JPanel urlPanel = new HorizontalPanel();
+        urlPanel.add(urlLabel);
+        urlPanel.add(urlField);
+        settingPanel.add(urlPanel);
+
+        JLabel portLabel = new JLabel("Thrift接口端口:");
+        portField = new JTextField();
+        portLabel.setLabelFor(portField);
+        JPanel  portPanel = new HorizontalPanel();
+        portPanel.add(portLabel);
+        portPanel.add(portField);
+        settingPanel.add(portPanel);
+
+        JLabel timeoutLabel = new JLabel("Thrift接口超时时间:");
         timeoutField = new JTextField();
-        ipLabel.setLabelFor(timeoutField);
+        timeoutLabel.setLabelFor(timeoutField);
+        JPanel  timeoutPanel = new HorizontalPanel();
+        timeoutPanel.add(timeoutLabel);
+        timeoutPanel.add(timeoutField);
+        settingPanel.add(timeoutPanel);
 
-        JPanel ipPanel = new HorizontalPanel();
-        ipPanel.add(ipLabel);
-        ipPanel.add(timeoutField);
+        JLabel protocolLabel = new JLabel("Thrift接口协议类型:");
+        protocolCombo = new JComboBox(new String[]{TProtocol.TBinaryProtocol.getProtocol(),TProtocol.TCompactProtocol.getProtocol()
+        ,TProtocol.TJSONProtocol.getProtocol(),TProtocol.TSimepleJSONProtocol.getProtocol()});
+        protocolLabel.setLabelFor(protocolCombo);
+        JPanel  protocolPanel = new HorizontalPanel();
+        protocolPanel.add(protocolLabel);
+        protocolPanel.add(protocolCombo);
+        settingPanel.add(protocolPanel);
+
+        JLabel fileLabel = new JLabel("Thrift接口定义文件:");
+        fileChooserButton = new JButton("浏览");
+        fileChooserButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int result = fileChooser.showOpenDialog(fileChooserButton);
+                if (result == JFileChooser.APPROVE_OPTION){
+                    thriftFile = fileChooser.getSelectedFile();
+                }
+            }
+        });
+        fileLabel.setLabelFor(fileChooserButton);
+        JPanel  filePanel = new HorizontalPanel();
+        filePanel.add(fileLabel);
+        filePanel.add(fileChooserButton);
+        settingPanel.add(filePanel);
+
+        JLabel methodLabel = new JLabel("待测的Thrift接口方法:");
+        methodCombo = new JComboBox();
+        methodCombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println(methodCombo.getItemCount());
+                if (methodCombo.getItemCount()<=0){
+                    JOptionPane.showMessageDialog(null,"请先选择thrift定义文件");
+                }
+            }
+        });
+        methodLabel.setLabelFor(methodCombo);
+        JPanel  methodPanel = new HorizontalPanel();
+        methodPanel.add(methodLabel);
+        methodPanel.add(methodCombo);
+        settingPanel.add(methodPanel);
+
+        JLabel paramModeLabel = new JLabel("Thrift接口入参生成模式:");
+        paramModeCombo = new JComboBox(new String[]{"随机生成"});
+        paramModeLabel.setLabelFor(paramModeCombo);
+        JPanel  paramModePanel = new HorizontalPanel();
+        paramModePanel.add(paramModeLabel);
+        paramModePanel.add(paramModeCombo);
+        settingPanel.add(paramModePanel);
 
 
 
-        settingPanel.add(ipPanel);
-
-
-
-
-        // ��panel
+        // 总panel
         JPanel dataPanel = new JPanel(new BorderLayout(5, 0));
 
         dataPanel.add(settingPanel, BorderLayout.NORTH);
@@ -110,8 +197,17 @@ public class ThriftGui extends AbstractSamplerGui {
     public void clearGui() {
         super.clearGui();
 
+        urlField.setText("");
+        portField.setText("");
         timeoutField.setText("");
-       // data.setText(""); // $NON-NLS-1$
+        protocolCombo.setSelectedIndex(0);
+
+        // data.setText(""); // $NON-NLS-1$
     }
+
+    public static void main(String[] args) {
+        new ThriftGui();
+    }
+
 
 }

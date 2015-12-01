@@ -6,27 +6,42 @@ package com.yy.expe.utils;
 public interface Consts {
 
     /**
-     * Sampler在JMeter中的显示名字
+     * Sampler鍦↗Meter涓樉绀虹殑鍚嶅瓧
      */
     String STATIC_LABEL = "Thrift Test";
 
     /**
-     * Thrift 接口地址
+     * Thrift 鎺ュ彛鍦板潃
      */
     String THRIFT_URL = "thrift_url";
 
     /**
-     * Thrift 接口端口
+     * Thrift 鎺ュ彛绔彛
      */
     String THRIFT_PORT = "thrift_port";
 
     /**
-     * 超时时间
+     * 瓒呮椂鏃堕棿
      */
     String THRIFT_TIMEOUT = "thrift_timeout";
 
     /**
-     * Thrift 接口协议类型
+     * Thrift 鍗忚绫诲瀷
      */
     String THRIFT_PROTOCOL = "thrift_protocol";
+
+    /**
+     * Thrift 瀹氫箟鏂囦欢
+     */
+    String THRIFT_FILE = "thrift_file";
+
+    /**
+     * Thrift 寰呮祴鎺ュ彛
+     */
+    String THRIFT_METHOD = "thrift_method";
+
+    /**
+     * Thrift鍏ュ弬鐢熸垚妯″紡
+     */
+    String THRIFT_PARAM_MODE = "thrift_param_mode";
 }

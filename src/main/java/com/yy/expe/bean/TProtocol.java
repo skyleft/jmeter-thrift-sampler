@@ -8,7 +8,7 @@ import org.apache.thrift.protocol.TSimpleJSONProtocol;
  */
 public enum TProtocol {
 
-    TBinaryProtocol("TBinary", "¶ş½øÖÆ¸ñÊ½"), TCompactProtocol("TCompact", "Ñ¹Ëõ¸ñÊ½"), TJSONProtocol("TJSON", "JSON¸ñÊ½"), TSimepleJSONProtocol("TSimpleJSON", "Ìá¹©JSONÖ»Ğ´Ğ­Òé, Éú³ÉµÄÎÄ¼şºÜÈİÒ×Í¨¹ı½Å±¾ÓïÑÔ½âÎö");
+    TBinaryProtocol("TBinary", "äºŒè¿›åˆ¶æ ¼å¼"), TCompactProtocol("TCompact", "å‹ç¼©æ ¼å¼"), TJSONProtocol("TJSON", "JSONæ ¼å¼"), TSimepleJSONProtocol("TSimpleJSON", "æä¾›JSONåªå†™åè®®, ç”Ÿæˆçš„æ–‡ä»¶å¾ˆå®¹æ˜“é€šè¿‡è„šæœ¬è¯­è¨€è§£æ");
 
     private String protocol;
     private String desc;
