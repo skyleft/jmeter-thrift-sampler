@@ -1,4 +1,4 @@
-package utils;
+package me.skyleft.utils;
 
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;

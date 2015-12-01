@@ -1,4 +1,4 @@
-package utils;
+package me.skyleft.utils;
 
 import javax.tools.*;
 import javax.tools.JavaCompiler.CompilationTask;

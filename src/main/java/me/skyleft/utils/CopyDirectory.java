@@ -1,4 +1,4 @@
-package utils;
+package me.skyleft.utils;
 
 /**
  * Created by zhangzongchao on 2015/11/30.

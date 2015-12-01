@@ -1,4 +1,4 @@
-package utils;
+package me.skyleft.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
