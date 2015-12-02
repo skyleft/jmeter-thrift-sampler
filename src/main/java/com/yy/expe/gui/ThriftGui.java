@@ -11,10 +11,12 @@ import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.lang.reflect.Method;
 
 /**
  * Created by zhangzongchao on 2015/11/25.
@@ -26,8 +28,8 @@ public class ThriftGui extends AbstractSamplerGui {
 
     private JTextField urlField,portField,timeoutField;
     private JComboBox protocolCombo,methodCombo,paramModeCombo;
-    private File thriftFile;
-    private JButton fileChooserButton;
+    private File thriftFile,thriftExeFile;
+    private JButton fileChooserButton,thriftChooserButton;
 
     public ThriftGui() {
         init();
@@ -142,14 +144,88 @@ public class ThriftGui extends AbstractSamplerGui {
         protocolPanel.add(protocolCombo);
         settingPanel.add(protocolPanel);
 
-        JLabel fileLabel = new JLabel("Thrift接口定义文件:");
-        fileChooserButton = new JButton("浏览");
+        JLabel thriftLabel = new JLabel("Thrift.exe路径:");
+        thriftChooserButton = new JButton("浏览...选择Thrift.exe");
+        thriftChooserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.addChoosableFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        return f.isFile() && f.getName().toLowerCase().endsWith(".exe");
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "请选择thrift.exe";
+                    }
+                });
+                int result = fileChooser.showOpenDialog(fileChooserButton);
+                if (result == JFileChooser.APPROVE_OPTION){
+                    thriftExeFile = fileChooser.getSelectedFile();
+                }else{
+                    JOptionPane.showMessageDialog(null,"选择错误");
+                }
+            }
+        });
+        thriftLabel.setLabelFor(thriftChooserButton);
+        JPanel  thriftPanel = new HorizontalPanel();
+        thriftPanel.add(thriftLabel);
+        thriftPanel.add(thriftChooserButton);
+        settingPanel.add(thriftPanel);
+
+        final JLabel fileLabel = new JLabel("Thrift接口定义文件:");
+        fileChooserButton = new JButton("浏览...选择*.thrift");
+        final JLabel fileNameLabel = new JLabel();
         fileChooserButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
+                fileChooser.addChoosableFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        return f.isFile() && f.getName().toLowerCase().endsWith(".thrift");
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "请选择thrift接口定义文件";
+                    }
+                });
                 int result = fileChooser.showOpenDialog(fileChooserButton);
                 if (result == JFileChooser.APPROVE_OPTION){
                     thriftFile = fileChooser.getSelectedFile();
+                    fileNameLabel.setText(thriftFile.getAbsolutePath());
+                    if (thriftExeFile==null||thriftFile==null){
+                        JOptionPane.showMessageDialog(null,"必须选择正确的thrift.exe和*.thrift定义文件");
+                        return;
+                    }
+                    ThriftParser thriftParser = new ThriftParser(thriftFile,thriftExeFile);
+                    try {
+                        thriftParser.run();
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    ThriftParser.ParserStatus ps = thriftParser.getParserStatus();
+                    while(!thriftParser.getParserStatus().isDone()){
+                        fileNameLabel.setText(ps.getStatus());
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                    fileNameLabel.setText(ps.getStatus());
+
+                    java.util.List<Method> serviceMethods = thriftParser.getServiceMethod();
+                    for (Method serviceMethod:serviceMethods){
+                        methodCombo.addItem(serviceMethod.getName());
+                    }
+
+
+                }else{
+                    fileNameLabel.setText("");
+                    JOptionPane.showMessageDialog(null,"选择错误");
                 }
             }
         });
@@ -157,13 +233,14 @@ public class ThriftGui extends AbstractSamplerGui {
         JPanel  filePanel = new HorizontalPanel();
         filePanel.add(fileLabel);
         filePanel.add(fileChooserButton);
+        filePanel.add(fileNameLabel);
         settingPanel.add(filePanel);
 
         JLabel methodLabel = new JLabel("待测的Thrift接口方法:");
         methodCombo = new JComboBox();
         methodCombo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println(methodCombo.getItemCount());
+                JOptionPane.showMessageDialog(null,methodCombo.getItemCount());
                 if (methodCombo.getItemCount()<=0){
                     JOptionPane.showMessageDialog(null,"请先选择thrift定义文件");
                 }
@@ -206,7 +283,7 @@ public class ThriftGui extends AbstractSamplerGui {
     }
 
     public static void main(String[] args) {
-        new ThriftGui();
+        new ThriftGui().show();
     }
 
 

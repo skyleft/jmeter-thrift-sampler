@@ -23,6 +23,7 @@ public class ThriftInvoker {
     private static final Integer SERVER_PORT = 35979;
     private static final Integer TIMEOUT = 30000;
 
+
     public static void main(String[] args) throws MalformedURLException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException, TTransportException {
         TTransport transport = new TFramedTransport(new TSocket(SERVER_IP, SERVER_PORT, TIMEOUT));
        transport.open();
@@ -42,4 +43,5 @@ public class ThriftInvoker {
         Object returncode = method.invoke(client,50015649);
         System.out.println(returncode);
     }
+
 }
