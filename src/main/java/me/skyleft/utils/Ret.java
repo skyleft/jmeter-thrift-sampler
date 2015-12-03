@@ -7,8 +7,8 @@ public class Ret {
     private Boolean success;
     private String message;
 
-    public static final Ret SUCCESS = new Ret(true,"操作成功");
-    public static final Ret FAIL = new Ret(false,"操作失败");
+    public static final Ret SUCCESS = new Ret(true,"Done!!!");
+    public static final Ret FAIL = new Ret(false,"Failed!!!");
 
     public Ret(boolean b, String msg) {
         this.success = b;

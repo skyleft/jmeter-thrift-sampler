@@ -2,15 +2,11 @@ package com.yy.expe.sampler;
 
 import com.yy.expe.bean.TProtocol;
 import com.yy.expe.utils.Consts;
-import org.apache.bcel.generic.ObjectType;
 import org.apache.jmeter.samplers.AbstractSampler;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.TestStateListener;
 import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 /**
  * Created by zhangzongchao on 2015/11/25.
@@ -76,7 +72,6 @@ public class ThriftSampler extends AbstractSampler implements TestStateListener 
             result.setResponseMessage("Exception: " + e);
             result.setDataType(org.apache.jmeter.samplers.SampleResult.TEXT);
             result.setResponseCode("500");
-            log.error("send yyp erroo:", e);
             teardownTest();
             setupTest();
         }

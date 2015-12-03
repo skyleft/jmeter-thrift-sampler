@@ -6,10 +6,8 @@ import me.skyleft.utils.Ret;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -31,9 +29,9 @@ public class ThriftParser {
     private Thread thread;
     private boolean hasStarted = false;
     private Ret ret = Ret.FAIL;
-    private Class serviceClass;
-    private List<Method> serviceMethod = new ArrayList<Method>();
-    private ParserStatus parserStatus = new ParserStatus();
+    private volatile Class serviceClass;
+    private volatile List<Method> serviceMethod = new ArrayList<Method>();
+    private volatile ParserStatus parserStatus = new ParserStatus();
 
     public void run() throws InterruptedException {
         thread.start();
@@ -80,14 +78,14 @@ public class ThriftParser {
                 return;
             }
             try {
-                Thread.sleep(100);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             if (!ret.getSuccess()) return;
             parserStatus.setStatus("自动编译接口代码...");
             try{
-                ret = new JCUtil().doCompile(ExecUtil.javaFilePath+File.separator+"gen-java","",ThriftParser.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath(),ExecUtil.javaDestPath);
+                ret = new JCUtil().doCompile(ExecUtil.javaFilePath+File.separator+"gen-java","",new File(ThriftParser.class.getProtectionDomain().getCodeSource().getLocation().getFile()).getParentFile().getParent()+File.separator+"thrift",ExecUtil.javaDestPath);
             }catch (Exception e){
                 e.printStackTrace();
                 ret = Ret.FAIL;
@@ -95,13 +93,12 @@ public class ThriftParser {
                 return;
             }
             try {
-                Thread.sleep(100);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             if (!ret.getSuccess()) return;
             parserStatus.setStatus("Thrift接口分析...");
-
             File f = new File(ExecUtil.javaDestPath);
             File[] classFiles = f.listFiles(new FileFilter() {
                 @Override
@@ -120,7 +117,7 @@ public class ThriftParser {
                 ret.setMessage("class文件目录不正确");
                 return;
             }
-            ClassLoader classLoader = new URLClassLoader(urls);
+            ClassLoader classLoader = new URLClassLoader(urls,ThriftParser.class.getClassLoader());
             //Class thriftServiceClass = classLoader.loadClass("TalkGodGatewayService$Client");
             for (File classFile : classFiles){
                 String className = classFile.getName().split("\\.")[0];
@@ -129,7 +126,7 @@ public class ThriftParser {
                     try {
                         serviceClass = classLoader.loadClass(className.split("\\$Iface")[0]+"$Client");
                         thriftInterface = classLoader.loadClass(className);
-                    } catch (ClassNotFoundException e) {
+                    } catch (Throwable e) {
                         e.printStackTrace();
                     }
                     if (serviceClass==null || thriftInterface==null){
@@ -138,14 +135,20 @@ public class ThriftParser {
                         return;
                     }
                     serviceMethod.addAll(Arrays.asList(thriftInterface.getDeclaredMethods()));
+                    break;
                 }
             }
             try {
-                Thread.sleep(100);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             parserStatus.setStatus("Thrift定义文件分析完毕，请继续完成设置");
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             ret = Ret.SUCCESS;
 
         }
@@ -170,6 +173,10 @@ public class ThriftParser {
         public void setIsDone(boolean isDone) {
             this.isDone = isDone;
         }
+    }
+
+    public Ret getRet() {
+        return ret;
     }
 }
 

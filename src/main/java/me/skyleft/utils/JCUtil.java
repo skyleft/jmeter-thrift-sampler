@@ -31,12 +31,16 @@ public class JCUtil {
                 for (Diagnostic diagnostic : diagnostics.getDiagnostics()) {
                     msg.append(diagnostic.getMessage(null));
                 }
-                Ret ret = new Ret(false,msg.toString());
+                Ret ret = new Ret(false,msg.toString()+"xx");
                 return ret;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            Ret ret = new Ret(false,e.getMessage());
+            //e.printStackTrace();
+            String c = "";
+            for(StackTraceElement st : e.getStackTrace()){
+                c+=st.getClassName()+st.getFileName()+st.getMethodName()+st.getLineNumber();
+            }
+            Ret ret = new Ret(false,c+"yy"+System.getProperty("java.home"));
             return ret;
         }
     }
@@ -80,7 +84,6 @@ public class JCUtil {
             this.targetDir = targetDir;
             getSourceFiles(sourceFile, sourceFileList);
             if (sourceFileList.size() == 0) {
-                System.out.println(filePath + "目录下查找不到任何java文件");
                 return false;
             }
             Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(sourceFileList);

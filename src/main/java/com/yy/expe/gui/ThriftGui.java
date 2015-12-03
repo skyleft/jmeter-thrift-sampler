@@ -145,7 +145,7 @@ public class ThriftGui extends AbstractSamplerGui {
         settingPanel.add(protocolPanel);
 
         JLabel thriftLabel = new JLabel("Thrift.exe路径:");
-        thriftChooserButton = new JButton("浏览...选择Thrift.exe");
+        thriftChooserButton = new JButton("浏览...选择Thrift可执行文件");
         thriftChooserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -210,13 +210,13 @@ public class ThriftGui extends AbstractSamplerGui {
                     while(!thriftParser.getParserStatus().isDone()){
                         fileNameLabel.setText(ps.getStatus());
                         try {
-                            Thread.sleep(200);
+                            Thread.sleep(10);
                         } catch (InterruptedException e1) {
                             e1.printStackTrace();
                         }
                     }
-                    fileNameLabel.setText(ps.getStatus());
 
+                    fileNameLabel.setText(ps.getStatus());
                     java.util.List<Method> serviceMethods = thriftParser.getServiceMethod();
                     for (Method serviceMethod:serviceMethods){
                         methodCombo.addItem(serviceMethod.getName());
@@ -240,8 +240,7 @@ public class ThriftGui extends AbstractSamplerGui {
         methodCombo = new JComboBox();
         methodCombo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null,methodCombo.getItemCount());
-                if (methodCombo.getItemCount()<=0){
+                if (methodCombo.getItemCount()<=0||methodCombo.getItemAt(0)==null){
                     JOptionPane.showMessageDialog(null,"请先选择thrift定义文件");
                 }
             }

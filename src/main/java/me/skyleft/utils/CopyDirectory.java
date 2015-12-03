@@ -10,8 +10,6 @@ import java.io.*;
 public class CopyDirectory {
 
     /***
-     * 复制文件
-     *
      * @param sourceFile 源文件
      * @param targetFile 目标文件
      * @throws IOException
@@ -38,8 +36,6 @@ public class CopyDirectory {
     }
 
     /***
-     * 复制文件夹
-     *
      * @param sourceDir 源文件夹路径
      * @param targetDir 目标文件夹路径
      * @throws IOException
